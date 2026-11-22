@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Obsidian Spatial Background -->
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E1218" />
+      <stop offset="50%" stop-color="#080A0E" />
+      <stop offset="100%" stop-color="#000000" />
+    </linearGradient>
+
+    <!-- Subtle Outer Border -->
+    <linearGradient id="border-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8AB4F8" stop-opacity="0.45" />
+      <stop offset="40%" stop-color="#1A73E8" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0.10" />
+    </linearGradient>
+
+    <!-- Core Cobalt Ambient Glow -->
+    <radialGradient id="prism-ambient" cx="45%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#1A73E8" stop-opacity="0.38" />
+      <stop offset="45%" stop-color="#0B57D0" stop-opacity="0.18" />
+      <stop offset="75%" stop-color="#080A0E" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Prism Left Facet Gradient -->
+    <linearGradient id="prism-left" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A73E8" stop-opacity="0.92" />
+      <stop offset="50%" stop-color="#0B57D0" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#062258" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Prism Right Facet Gradient -->
+    <linearGradient id="prism-right" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4285F4" stop-opacity="0.88" />
+      <stop offset="45%" stop-color="#1A73E8" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#0B57D0" stop-opacity="0.90" />
+    </linearGradient>
+
+    <!-- Prism Bottom / Underside Reflection -->
+    <linearGradient id="prism-base" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#06173B" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#0A2C6E" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#081B4E" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Incoming Source Code Laser Beam -->
+    <linearGradient id="beam-in" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="30%" stop-color="#A8C7FA" stop-opacity="0.5" />
+      <stop offset="80%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#E8F0FE" stop-opacity="1" />
+    </linearGradient>
+
+    <!-- Refracted Visual Architecture Beams -->
+    <linearGradient id="beam-cyan" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#8AB4F8" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="beam-emerald" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#80E8BF" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#34D399" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="beam-amber" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#FDE68A" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#FBBF24" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FBBF24" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="beam-vermilion" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#FFAAA3" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#FF5A4F" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FF5A4F" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Internal Dispersion Fan -->
+    <linearGradient id="internal-dispersion" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+      <stop offset="40%" stop-color="#8AB4F8" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#4285F4" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="laser-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base Obsidian Shield with Smooth Rounded Radius -->
+  <rect width="512" height="512" rx="120" fill="url(#bg-grad)" stroke="url(#border-grad)" stroke-width="7" />
+
+  <!-- Ambient Prism Core Glow -->
+  <circle cx="236" cy="265" r="190" fill="url(#prism-ambient)" />
+
+  <!-- Background Architecture Strata Grid Lines (Subtle) -->
+  <g opacity="0.12" stroke="#8AB4F8" stroke-width="1.5" stroke-dasharray="4 8">
+    <line x1="80" y1="180" x2="432" y2="180" />
+    <line x1="80" y1="260" x2="432" y2="260" />
+    <line x1="80" y1="340" x2="432" y2="340" />
+  </g>
+
+  <!-- Incoming Raw Source Beam (White/Ice Laser) -->
+  <g filter="url(#laser-glow)">
+    <line x1="28" y1="192" x2="172" y2="236" stroke="url(#beam-in)" stroke-width="4.5" stroke-linecap="round" />
+    <polygon points="166,234 176,237 170,242" fill="#FFFFFF" opacity="0.8" />
+  </g>
+
+  <!-- Refracted Visual Architecture Rays Emerging from Right Prism Face -->
+  <g filter="url(#laser-glow)">
+    <!-- Cyan/Ice: Edge & Client Layer -->
+    <line x1="292" y1="250" x2="492" y2="202" stroke="url(#beam-cyan)" stroke-width="4" stroke-linecap="round" />
+    <!-- Emerald: Domain & Logic Layer -->
+    <line x1="298" y1="274" x2="492" y2="242" stroke="url(#beam-emerald)" stroke-width="4" stroke-linecap="round" />
+    <!-- Amber: Orchestration & AI Layer -->
+    <line x1="304" y1="298" x2="492" y2="282" stroke="url(#beam-amber)" stroke-width="4" stroke-linecap="round" />
+    <!-- Vermilion: Infrastructure & Data Layer -->
+    <line x1="310" y1="322" x2="492" y2="322" stroke="url(#beam-vermilion)" stroke-width="4" stroke-linecap="round" />
+  </g>
+
+  <!-- Geometric Obsidian Cobalt Prism Body -->
+  <!-- Prism Facets: Apex (236, 88), Left (108, 364), Right (364, 364), Front Center Ridge (236, 424) -->
+  <g>
+    <!-- Base Bottom Drop Shadow Plane -->
+    <polygon points="108,364 236,424 364,364" fill="url(#prism-base)" opacity="0.9" />
+
+    <!-- Left Prism Facet -->
+    <polygon points="236,88 108,364 236,424" fill="url(#prism-left)" stroke="#4285F4" stroke-width="1.5" stroke-opacity="0.4" />
+
+    <!-- Right Prism Facet -->
+    <polygon points="236,88 236,424 364,364" fill="url(#prism-right)" stroke="#8AB4F8" stroke-width="1.5" stroke-opacity="0.6" />
+
+    <!-- Internal Refraction Fan Spectrum inside the crystal -->
+    <polygon points="172,236 292,250 310,322 236,310" fill="url(#internal-dispersion)" opacity="0.45" />
+
+    <!-- Crystalline Architecture Strata Lines across Left Facet -->
+    <g opacity="0.35" stroke="#A8C7FA" stroke-width="1.5">
+      <line x1="198" y1="170" x2="236" y2="188" />
+      <line x1="162" y1="248" x2="236" y2="284" />
+      <line x1="126" y1="326" x2="236" y2="378" />
+    </g>
+
+    <!-- Crystalline Architecture Strata Lines across Right Facet -->
+    <g opacity="0.4" stroke="#A8C7FA" stroke-width="1.5">
+      <line x1="236" y1="188" x2="274" y2="170" />
+      <line x1="236" y1="284" x2="310" y2="248" />
+      <line x1="236" y1="378" x2="346" y2="326" />
+    </g>
+
+    <!-- Front Vertical Apex Ridge (Gleaming Prism Spine) -->
+    <line x1="236" y1="88" x2="236" y2="424" stroke="#A8C7FA" stroke-width="3" stroke-linecap="round" opacity="0.95" filter="url(#laser-glow)" />
+
+    <!-- Left Silhouette Edge -->
+    <line x1="236" y1="88" x2="108" y2="364" stroke="#8AB4F8" stroke-width="2.5" opacity="0.75" />
+
+    <!-- Right Silhouette Edge -->
+    <line x1="236" y1="88" x2="364" y2="364" stroke="#8AB4F8" stroke-width="2.5" opacity="0.85" />
+
+    <!-- Bottom Left Rim -->
+    <line x1="108" y1="364" x2="236" y2="424" stroke="#4285F4" stroke-width="2" opacity="0.7" />
+
+    <!-- Bottom Right Rim -->
+    <line x1="236" y1="424" x2="364" y2="364" stroke="#8AB4F8" stroke-width="2" opacity="0.8" />
+  </g>
+
+  <!-- Luminous Focal Core Diamond (Gemini 4 / Decision-1 Spatial Engine) -->
+  <g filter="url(#soft-glow)">
+    <polygon points="236,220 256,252 236,284 216,252" fill="#8AB4F8" opacity="0.5" />
+    <polygon points="236,228 248,252 236,276 224,252" fill="#FFFFFF" opacity="0.8" />
+    <circle cx="236" cy="252" r="3" fill="#FFFFFF" />
+  </g>
+
+  <!-- Crystalline Apex Specular Highlights -->
+  <circle cx="236" cy="88" r="5" fill="#FFFFFF" filter="url(#laser-glow)" />
+  <circle cx="236" cy="88" r="2.5" fill="#A8C7FA" />
+  <circle cx="108" cy="364" r="3.5" fill="#8AB4F8" opacity="0.8" />
+  <circle cx="364" cy="364" r="3.5" fill="#A8C7FA" opacity="0.9" />
+  <circle cx="236" cy="424" r="4" fill="#8AB4F8" opacity="0.85" />
+
+  <!-- Entry Point Laser Spark -->
+  <circle cx="172" cy="236" r="4.5" fill="#FFFFFF" filter="url(#laser-glow)" />
+
+  <!-- Exit Point Refraction Sparks -->
+  <circle cx="292" cy="250" r="3" fill="#38BDF8" filter="url(#laser-glow)" />
+  <circle cx="298" cy="274" r="3" fill="#34D399" filter="url(#laser-glow)" />
+  <circle cx="304" cy="298" r="3" fill="#FBBF24" filter="url(#laser-glow)" />
+  <circle cx="310" cy="322" r="3" fill="#FF5A4F" filter="url(#laser-glow)" />
+</svg>
