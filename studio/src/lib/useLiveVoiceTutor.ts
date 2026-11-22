@@ -541,6 +541,11 @@ export function useLiveVoiceTutor({
     stopAudioCapture();
     clearPlaybackQueue();
 
+    if (playbackAudioContextRef.current && playbackAudioContextRef.current.state !== 'closed') {
+      playbackAudioContextRef.current.close().catch(() => {});
+      playbackAudioContextRef.current = null;
+    }
+
     setIsConnected(false);
     setIsConnecting(false);
     setIsVisionStreaming(false);

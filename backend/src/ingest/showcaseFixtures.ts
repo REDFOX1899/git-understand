@@ -221,7 +221,7 @@ function buildTreemap(
   const root: TreemapNode = {
     id: 'treemap-root',
     name: repoName,
-    path: '',
+    path: '.',
     kind: 'dir',
     tokens: 0,
     bytes: 0,

@@ -4,7 +4,9 @@
 // =============================================================================
 
 import { Router, type Request, type Response } from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { extractInteractionText, extractJsonObject } from '../gemini/mediaUtils.js';
+import { hasGeminiCredentials, withV1Client } from '../gemini/clientPool.js';
+import { getShowcaseBlueprint } from '../ingest/showcaseFixtures.js';
 
 // Canonical Ingest & Digest Compilers
 import {
@@ -25,9 +27,7 @@ import { buildRepoId, parseGitHubInput } from '../utils/urlParser.js';
 // Backend Environment Configuration
 import { ENV } from '../config/env.js';
 
-// Gemini Dual-Pool Client for Fast Reasoning
-// @ts-ignore - Sibling module may be created concurrently in the agent fleet
-import { withV1Client } from '../gemini/v1Client.js';
+// Gemini Dual-Pool Client imported above
 
 // Canonical Shared Contracts
 import type {
@@ -49,9 +49,15 @@ async function resolveBlueprint(
   const cleanTarget = rawTarget.trim();
   if (!cleanTarget) return null;
 
-  // 1. Direct lookup by exact repoId in cache
+  // 1. Direct lookup by exact repoId in cache or showcase fixtures
   const cached = await atlasCache.get(cleanTarget);
   if (cached) return cached;
+
+  const showcaseDirect = getShowcaseBlueprint(cleanTarget);
+  if (showcaseDirect) {
+    await atlasCache.set(showcaseDirect);
+    return showcaseDirect;
+  }
 
   // 2. Normalize via URL parser
   try {
@@ -235,72 +241,37 @@ async function executeSmartFilterWithGemini(
   blueprint: VisualAtlasBlueprint,
   customApiKey?: string
 ): Promise<Partial<DigestFilterOptions> | null> {
+  if (!hasGeminiCredentials(customApiKey)) {
+    return null;
+  }
+
   const smartPrompt = buildSmartFilterPrompt(prompt, blueprint);
 
   try {
-    let rawJson = '';
-
-    // Primary: Call via withV1Client pool
-    if (typeof withV1Client === 'function') {
-      try {
-        rawJson = await withV1Client(async (client: any) => {
-          const response = await client.models.generateContent({
-            model: 'gemini-4-argon',
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: smartPrompt }],
-              },
-            ],
-            config: {
-              temperature: 0.1,
-              responseMimeType: 'application/json',
-            },
-          });
-          return response.text || '';
-        });
-      } catch (poolErr) {
-        console.warn('[DigestRoutes] withV1Client pool call failed, trying direct SDK:', poolErr);
-      }
-    }
-
-    // Secondary: Direct GoogleGenAI SDK instance if withV1Client was unavailable or threw
-    if (!rawJson) {
-      const apiKey = customApiKey?.trim() || ENV.GEMINI_API_KEY;
-      if (!apiKey) {
-        return null;
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-4-argon',
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: smartPrompt }],
-          },
-        ],
-        config: {
-          temperature: 0.1,
-          responseMimeType: 'application/json',
+    const rawJson = await withV1Client(async (client) => {
+      const interaction = await client.interactions.create({
+        model: ENV.GEMINI_MODEL_FAST,
+        input: smartPrompt,
+        generation_config: {
+          thinking_level: 'low',
         },
-      });
-      rawJson = response.text || '';
-    }
+        store: false,
+      } as unknown as Parameters<typeof client.interactions.create>[0]);
+      return extractInteractionText(interaction);
+    }, customApiKey);
 
     if (!rawJson.trim()) return null;
 
-    // Clean potential markdown fences
-    const cleanJson = rawJson.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-    const parsed = JSON.parse(cleanJson);
+    const parsed = extractJsonObject<Record<string, unknown>>(rawJson);
+    if (!parsed) return null;
 
     const options: Partial<DigestFilterOptions> = {};
 
     if (Array.isArray(parsed.selectedSubsystems) && parsed.selectedSubsystems.length > 0) {
-      // Validate subsystem IDs exist in blueprint
       const validIds = new Set((blueprint.subsystems || []).map((s) => s.id.toLowerCase()));
-      options.selectedSubsystems = parsed.selectedSubsystems.filter((id: string) =>
-        validIds.has(String(id).toLowerCase())
-      );
+      options.selectedSubsystems = parsed.selectedSubsystems
+        .map((id) => String(id))
+        .filter((id) => validIds.has(id.toLowerCase()));
     }
 
     if (Array.isArray(parsed.includePatterns)) {
@@ -356,7 +327,7 @@ router.post(['/', '/digest', '/compile', '/digest/compile'], async (req: Request
 
     if (!blueprint) {
       res.status(404).json({
-        error: `Repository blueprint not found for "${targetRef}". Please ingest repository first.`,
+        error: `Repository not found for "${targetRef}". Please ingest repository first.`,
       });
       return;
     }
@@ -404,7 +375,7 @@ router.post(['/smart-filter', '/digest/smart-filter'], async (req: Request, res:
 
     if (!blueprint) {
       res.status(404).json({
-        error: `Repository blueprint not found for "${targetRef}". Please ingest repository first.`,
+        error: `Repository not found for "${targetRef}". Please ingest repository first.`,
       });
       return;
     }

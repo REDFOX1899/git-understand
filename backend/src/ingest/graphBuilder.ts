@@ -787,6 +787,10 @@ export function resolveImportToFile(
       rustCandidates.push(importerDir ? `${importerDir}/${sub}` : sub);
     } else if (rustPath.startsWith('super/')) {
       const sub = rustPath.slice('super/'.length);
+      const isModFile = /(?:^|\/)(?:mod|lib|main)\.rs$/i.test(normImporter);
+      if (!isModFile && importerDir) {
+        rustCandidates.push(`${importerDir}/${sub}`);
+      }
       const parentDir = posixDirname(importerDir);
       rustCandidates.push(parentDir ? `${parentDir}/${sub}` : sub);
     }

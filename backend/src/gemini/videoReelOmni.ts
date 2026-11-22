@@ -241,7 +241,7 @@ export async function generateExplainerVideoReel(
         const posterFilename = `poster_${safeSlug}_${timestamp}.png`;
         const posterFilePath = path.join(ENV.ARTIFACTS_DIR, posterFilename);
         await fsPromises.writeFile(posterFilePath, Buffer.from(cleanedBase64, 'base64'));
-        posterUrl = `/api/artifacts/${posterFilename}`;
+        posterUrl = `/artifacts/${posterFilename}`;
       } catch (saveErr) {
         console.warn('[VideoReelOmni] Failed to write poster frame to disk:', saveErr);
       }
@@ -361,7 +361,7 @@ export async function generateExplainerVideoReel(
         }
       }
 
-      const finalVideoUrl = localSaved ? `/api/artifacts/${videoFilename}` : videoUri;
+      const finalVideoUrl = localSaved ? `/artifacts/${videoFilename}` : videoUri;
 
       return {
         videoUrl: finalVideoUrl,

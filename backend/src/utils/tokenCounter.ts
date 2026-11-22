@@ -36,7 +36,7 @@ const LINE_TOKEN_REGEX =
  * native dependencies and >50 MB/s throughput.
  */
 export function estimateTokens(text: string): number {
-  if (!text || text.length === 0) return 0;
+  if (!text || text.trim().length === 0) return 0;
 
   const lines = text.split(/\r?\n/);
   let totalTokens = 0;

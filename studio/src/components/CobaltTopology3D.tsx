@@ -444,9 +444,9 @@ export function CobaltTopology3D({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Camera & Interaction State
-  const [rotX, setRotX] = useState<number>(0.42); // Hero isometric pitch ~24deg
-  const [rotY, setRotY] = useState<number>(-0.55); // Hero isometric yaw ~-31deg
+  // Camera & Interaction State (rotX/rotY stored in mutable refs to avoid 60fps React re-render thrashing)
+  const rotXRef = useRef<number>(0.42); // Hero isometric pitch ~24deg
+  const rotYRef = useRef<number>(-0.55); // Hero isometric yaw ~-31deg
   const [zoom, setZoom] = useState<number>(1.0);
   const [explosion, setExplosion] = useState<number>(1.0); // 1.0 normal, up to 1.8 exploded
   const [isAutoRotating, setIsAutoRotating] = useState<boolean>(true);
@@ -661,8 +661,8 @@ export function CobaltTopology3D({
   }, []);
 
   const handleResetCamera = useCallback(() => {
-    setRotX(0.42);
-    setRotY(-0.55);
+    rotXRef.current = 0.42;
+    rotYRef.current = -0.55;
     setZoom(1.0);
     setExplosion(1.0);
     velRotXRef.current = 0;
@@ -677,12 +677,12 @@ export function CobaltTopology3D({
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
-      rotX,
-      rotY,
+      rotX: rotXRef.current,
+      rotY: rotYRef.current,
     };
     velRotXRef.current = 0;
     velRotYRef.current = 0;
-  }, [interactive, rotX, rotY]);
+  }, [interactive]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     const canvas = canvasRef.current;
@@ -701,8 +701,8 @@ export function CobaltTopology3D({
       velRotYRef.current = dx * 0.0004;
       velRotXRef.current = dy * 0.0004;
 
-      setRotY(newRotY);
-      setRotX(newRotX);
+      rotYRef.current = newRotY;
+      rotXRef.current = newRotX;
       return;
     }
 
@@ -747,11 +747,19 @@ export function CobaltTopology3D({
     }
   }, [hoveredNode, onSelectNode]);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (!interactive) return;
-    e.preventDefault();
-    const delta = -Math.sign(e.deltaY) * 0.08;
-    setZoom((prev) => Math.max(0.45, Math.min(2.4, prev + delta)));
+  // Attach non-passive wheel zoom listener directly to canvas so preventDefault works cleanly
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !interactive) return;
+    const onNativeWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = -Math.sign(e.deltaY) * 0.08;
+      setZoom((prev) => Math.max(0.45, Math.min(2.4, prev + delta)));
+    };
+    canvas.addEventListener('wheel', onNativeWheel, { passive: false });
+    return () => {
+      canvas.removeEventListener('wheel', onNativeWheel);
+    };
   }, [interactive]);
 
   // =============================================================================
@@ -780,17 +788,20 @@ export function CobaltTopology3D({
         fpsTimeRef.current = now;
       }
 
-      // Auto rotation physics & inertia dampening
+      // Auto rotation physics & inertia dampening (pure ref mutation — zero React re-renders!)
       if (!isDraggingRef.current) {
         if (isAutoRotating && !reducedMotion) {
-          setRotY((prev) => prev + dt * 0.18);
+          rotYRef.current += dt * 0.18;
         } else if (Math.abs(velRotXRef.current) > 0.0001 || Math.abs(velRotYRef.current) > 0.0001) {
-          setRotY((prev) => prev + velRotYRef.current);
-          setRotX((prev) => Math.max(-0.25, Math.min(1.2, prev + velRotXRef.current)));
+          rotYRef.current += velRotYRef.current;
+          rotXRef.current = Math.max(-0.25, Math.min(1.2, rotXRef.current + velRotXRef.current));
           velRotYRef.current *= 0.92;
           velRotXRef.current *= 0.92;
         }
       }
+
+      const rotX = rotXRef.current;
+      const rotY = rotYRef.current;
 
       // Dynamic canvas sizing with devicePixelRatio
       const rect = canvas.getBoundingClientRect();
@@ -1263,8 +1274,6 @@ export function CobaltTopology3D({
       }
     };
   }, [
-    rotX,
-    rotY,
     zoom,
     explosion,
     isAutoRotating,
@@ -1291,7 +1300,6 @@ export function CobaltTopology3D({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onClick={handleClick}
-        onWheel={handleWheel}
       />
 
       {/* Hero Badge & Stratum Legend */}
@@ -1394,14 +1402,15 @@ export function CobaltTopology3D({
           <button
             type="button"
             onClick={toggleAutoRotate}
-            className={`p-1.5 text-xs rounded transition-colors ${
+            aria-label={isAutoRotating ? 'Pause auto-rotation' : 'Start auto-rotation'}
+            className={`p-1.5 text-xs rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-ice)] ${
               isAutoRotating && !reducedMotion
                 ? 'text-[var(--cobalt-ice)] bg-[var(--cobalt-tint)]'
                 : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]'
             }`}
             title={isAutoRotating ? 'Pause Rotation' : 'Start Auto-Rotation'}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               {isAutoRotating ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
               ) : (
@@ -1419,10 +1428,11 @@ export function CobaltTopology3D({
           <button
             type="button"
             onClick={() => setZoom((prev) => Math.max(0.45, prev - 0.15))}
-            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded"
+            aria-label="Zoom out 3D topology"
+            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-ice)]"
             title="Zoom Out"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
           </button>
@@ -1431,10 +1441,11 @@ export function CobaltTopology3D({
           <button
             type="button"
             onClick={() => setZoom((prev) => Math.min(2.4, prev + 0.15))}
-            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded"
+            aria-label="Zoom in 3D topology"
+            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-ice)]"
             title="Zoom In"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
@@ -1443,10 +1454,11 @@ export function CobaltTopology3D({
           <button
             type="button"
             onClick={handleResetCamera}
-            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded"
+            aria-label="Reset 3D perspective"
+            className="p-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-ice)]"
             title="Reset Perspective"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

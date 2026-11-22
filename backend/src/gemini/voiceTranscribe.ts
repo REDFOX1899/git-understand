@@ -86,60 +86,11 @@ export async function transcribeAudioQuery(
     }
 
     /**
-     * Secondary fallback to generateContent if interactions endpoint is temporarily unavailable.
-     */
-    async function executeGenerateContent(modelName: string): Promise<string> {
-      const generateContentParams: Record<string, unknown> = {
-        model: modelName,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                inlineData: {
-                  data: cleanBase64,
-                  mimeType: effectiveMime,
-                },
-              },
-              {
-                text: TRANSCRIPTION_PROMPT,
-              },
-            ],
-          },
-        ],
-      };
-
-      if (modelName.startsWith('gemini-4-')) {
-        generateContentParams.generationConfig = {
-          thinking_level: 'low',
-        };
-      }
-
-      const response = await client.models.generateContent(
-        generateContentParams as unknown as Parameters<typeof client.models.generateContent>[0]
-      );
-
-      return extractInteractionText(response);
-    }
-
-    /**
-     * Executes transcription on the specified model, trying interactions first, then generateContent.
+     * Executes transcription on the specified model strictly via the v1 Interactions API.
      */
     async function transcribeWithModel(modelName: string): Promise<string> {
-      try {
-        const text = await executeInteraction(modelName);
-        if (text && text.trim().length > 0) {
-          return text.trim();
-        }
-      } catch (interactionErr: unknown) {
-        console.warn(
-          `[voiceTranscribe] interactions.create on "${modelName}" failed:`,
-          interactionErr instanceof Error ? interactionErr.message : String(interactionErr)
-        );
-      }
-
-      const fallbackText = await executeGenerateContent(modelName);
-      return fallbackText ? fallbackText.trim() : '';
+      const text = await executeInteraction(modelName);
+      return text ? text.trim() : '';
     }
 
     // Attempt 1: Dedicated Gemini 3.5 Transcribe

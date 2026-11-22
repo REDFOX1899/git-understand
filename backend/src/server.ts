@@ -40,7 +40,7 @@ export function createApp(): Express {
           allowedOrigins.has('*') ||
           allowedOrigins.has(origin) ||
           origin.endsWith('.git-understand.com') ||
-          origin.endsWith('.vercel.app') ||
+          /^https:\/\/git-understand(-[a-z0-9-]+)?\.vercel\.app$/.test(origin) ||
           origin.startsWith('http://localhost:') ||
           origin.startsWith('http://127.0.0.1:')
         ) {
@@ -55,6 +55,7 @@ export function createApp(): Express {
         'Authorization',
         'x-gemini-api-key',
         'x-github-token',
+        'x-deep-thinking',
         'Mcp-Session-Id',
       ],
     })
@@ -65,11 +66,13 @@ export function createApp(): Express {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
   });
 
   // Large JSON limit for canvas PNG snapshots, whiteboard uploads, and voice memos
-  app.use(express.json({ limit: '25mb' }));
+  // strict: false lets JSON-RPC /mcp validate non-object JSON payloads cleanly with -32600
+  app.use(express.json({ limit: '25mb', strict: false }));
   app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
   // Generated multimodal artifacts (Nano Banana posters, 3.8 TTS WAVs, Omni MP4s)
@@ -91,12 +94,19 @@ export function createApp(): Express {
   app.use('/api', oracleRoutes);
   app.use('/api', mediaRoutes);
 
+  // Container healthcheck alias (Cloud Run / Docker)
+  app.get('/health', (req: Request, res: Response, next: NextFunction) => {
+    req.url = '/health';
+    analyzeRoutes(req, res, next);
+  });
+
   // Built-in Streamable HTTP MCP Server for Claude Code, Cursor, Gemini CLI & VS Code
   app.use('/mcp', createMcpRouter());
 
   // Root capability landing JSON
   app.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
+      name: 'git-understand-engine',
       service: 'git-understand-engine',
       version: '3.0.0',
       domain: PUBLIC_DOMAIN,
@@ -104,8 +114,10 @@ export function createApp(): Express {
       endpoints: {
         health: '/api/health',
         showcase: '/api/showcase',
+        apiShowcase: '/api/showcase',
         analyze: 'POST /api/analyze',
         digest: 'POST /api/digest',
+        apiDigestCompile: '/api/digest/compile',
         rawMarkdown: 'GET /api/raw/:owner/:repo',
         xray: 'POST /api/xray',
         circleExplain: 'POST /api/circle-explain',
@@ -121,7 +133,8 @@ export function createApp(): Express {
   // 404 fallback
   app.use((req: Request, res: Response) => {
     res.status(404).json({
-      error: `Route not found: ${req.method} ${req.originalUrl}`,
+      status: 404,
+      error: `Endpoint not found: ${req.method} ${req.originalUrl}`,
     });
   });
 

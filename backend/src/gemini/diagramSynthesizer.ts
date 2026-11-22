@@ -174,7 +174,20 @@ function sanitizeLineLabels(line: string): string {
 
       if (matchedShape) {
         const contentStart = restIdx + matchedShape.open.length;
-        const closeIdx = line.indexOf(matchedShape.close, contentStart);
+        // Scan for matching closing token while respecting quoted strings (so e.g. NodeB["Another [Good]"] is preserved intact)
+        let closeIdx = -1;
+        let inQuotes = false;
+        for (let scan = contentStart; scan <= line.length - matchedShape.close.length; scan++) {
+          const ch = line[scan];
+          if (ch === '"' && line[scan - 1] !== '\\') {
+            inQuotes = !inQuotes;
+            continue;
+          }
+          if (!inQuotes && line.startsWith(matchedShape.close, scan)) {
+            closeIdx = scan;
+            break;
+          }
+        }
         if (closeIdx !== -1) {
           const content = line.slice(contentStart, closeIdx);
           const trimmedContent = content.trim();

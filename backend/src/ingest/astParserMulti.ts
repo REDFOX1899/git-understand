@@ -1389,7 +1389,7 @@ function parseCargoToml(filePath: string, content: string, offsets: number[]): E
   }
 
   // Dependency sections: [dependencies], [dev-dependencies], [build-dependencies], [workspace.dependencies]
-  const depSectionRegex = /\[(?:workspace\.)?(?:dev-)?(?:build-)?dependencies(?:\.[^\]]+)?\]([\s\S]*?)(?:\[|$)/g;
+  const depSectionRegex = /^\[(?:workspace\.)?(?:dev-)?(?:build-)?dependencies(?:\.[^\]]+)?\][^\n]*\n([\s\S]*?)(?=\n\[|(?![\s\S]))/gm;
   let match: RegExpExecArray | null;
   while ((match = depSectionRegex.exec(content)) !== null) {
     const block = match[1];

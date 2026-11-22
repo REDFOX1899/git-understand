@@ -176,7 +176,7 @@ export function ByokSettingsModal({
     oracle: 'gemini-4-carbon',
     decisions: 'gemini-decision-1',
     live: 'gemini-3.8-live',
-    image: 'gemini-3.1-flash-image',
+    image: 'gemini-nano-banana-2.1',
     tts: 'gemini-3.8-flash-tts',
     video: 'gemini-omni-1.2-flash',
     embedding: 'gemini-embedding-2',

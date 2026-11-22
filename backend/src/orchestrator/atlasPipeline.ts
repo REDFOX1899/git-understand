@@ -23,6 +23,8 @@ import { ingestRepository, atlasCache } from '../ingest/index.js';
 import { parseGitHubInput, buildRepoId } from '../utils/urlParser.js';
 import { publishProgress } from './eventBus.js';
 import { ENV } from '../config/env.js';
+import { withV1Client } from '../gemini/clientPool.js';
+import { extractInteractionText, extractJsonObject } from '../gemini/mediaUtils.js';
 
 /**
  * Options for comprehensive repository analysis.
@@ -544,24 +546,21 @@ Return ONLY valid JSON matching this schema:
   }
 }`;
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: 'application/json',
+      const rawText = await withV1Client(async (client) => {
+        const interaction = await client.interactions.create({
+          model: modelName,
+          input: prompt,
+          generation_config: {
+            thinking_level: 'medium',
           },
-        }),
-      });
+          store: false,
+        } as unknown as Parameters<typeof client.interactions.create>[0]);
+        return extractInteractionText(interaction);
+      }, apiKey);
 
-      if (res.ok) {
-        const data = (await res.json()) as any;
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const parsed = JSON.parse(rawText);
+      if (rawText) {
+        const parsed = extractJsonObject<Record<string, unknown>>(rawText);
+        if (parsed) {
           if (parsed.headline) blueprint.headline = String(parsed.headline);
           if (parsed.oneLiner) blueprint.oneLiner = String(parsed.oneLiner);
           if (parsed.architecturePattern) blueprint.architecturePattern = String(parsed.architecturePattern);
@@ -570,8 +569,11 @@ Return ONLY valid JSON matching this schema:
           }
 
           if (Array.isArray(parsed.subsystemUpdates)) {
-            const updateMap = new Map<string, any>(
-              parsed.subsystemUpdates.map((u: any) => [u.id || u.name, u])
+            const updateMap = new Map<string, Record<string, unknown>>(
+              (parsed.subsystemUpdates as Array<Record<string, unknown>>).map((u) => [
+                String(u.id || u.name || ''),
+                u,
+              ])
             );
             for (const sub of blueprint.subsystems) {
               const u = updateMap.get(sub.id) || updateMap.get(sub.name);
@@ -588,9 +590,10 @@ Return ONLY valid JSON matching this schema:
           }
 
           if (parsed.nodeBriefs && typeof parsed.nodeBriefs === 'object') {
+            const briefs = parsed.nodeBriefs as Record<string, unknown>;
             for (const node of blueprint.nodes) {
-              if (parsed.nodeBriefs[node.id]) {
-                node.visualBrief = String(parsed.nodeBriefs[node.id]);
+              if (briefs[node.id]) {
+                node.visualBrief = String(briefs[node.id]);
               }
             }
           }

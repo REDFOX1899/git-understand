@@ -454,8 +454,10 @@ export function parseJsTsFile(filePath: string, content: string): ParsedCodeSign
           return;
         }
 
-        // Check if React component
-        const isComp = PASCAL_CASE_RE.test(rawName) && (hasJsx(node) || hasReactTypeAnnotation(node));
+        // Check if React component (named PascalCase or anonymous default export returning JSX)
+        const isComp =
+          (PASCAL_CASE_RE.test(rawName) || isDefault) &&
+          (hasJsx(node) || hasReactTypeAnnotation(node));
         symbols.push({
           name: rawName,
           kind: isComp ? 'component' : 'function',
@@ -790,6 +792,13 @@ export function parseJsTsFile(filePath: string, content: string): ParsedCodeSign
   }
 
   extractSymbolsAndRoutes(sourceFile);
+
+  // Resilient line-level export recovery when TypeScript AST error recovery drops trailing statements
+  const recoveryExportRe = /^\s*export\s+(?:async\s+)?(?:const|let|var|function|class|interface|type)\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm;
+  let recoveryMatch: RegExpExecArray | null;
+  while ((recoveryMatch = recoveryExportRe.exec(content)) !== null) {
+    exportsSet.add(recoveryMatch[1]);
+  }
 
   // Sort symbols deterministically by 1-based line number ascending
   symbols.sort((a, b) => a.line - b.line);

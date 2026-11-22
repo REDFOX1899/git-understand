@@ -726,8 +726,8 @@ export function isConfigFile(filePath: string): boolean {
     return true;
   }
 
-  // Python requirements files: requirements.txt, requirements-dev.txt, etc.
-  if (/^requirements(-[a-z0-9_-]+)?\.txt$/i.test(lowerName)) {
+  // Python requirements files: requirements.txt, requirements-dev.txt, requirements_test.txt, etc.
+  if (/^requirements([_-][a-z0-9_-]+)?\.txt$/i.test(lowerName)) {
     return true;
   }
 
