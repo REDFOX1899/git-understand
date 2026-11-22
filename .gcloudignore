@@ -1,0 +1,12 @@
+.git
+.gitignore
+node_modules
+backend/node_modules
+studio/node_modules
+studio/.next
+backend/dist
+backend/.cache
+backend/artifacts
+env/.env
+.DS_Store
+*.log

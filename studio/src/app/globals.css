@@ -1,0 +1,323 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-sans-loaded), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: var(--font-serif-loaded), "Instrument Serif", Georgia, serif;
+  --font-mono: var(--font-mono-loaded), "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ==========================================================================
+   GitUnderstand Zero-Clutter Obsidian Cobalt Studio + Archival Paper
+   Modern Web Guidance: system-first color-scheme: light dark + meta override
+   ========================================================================== */
+:root {
+  color-scheme: light dark;
+
+  /* Exact Google Cobalt Design Tokens */
+  --cobalt-deep: #0B57D0;
+  --cobalt-core: #1A73E8;
+  --cobalt-bright: #4285F4;
+  --cobalt-ice: #8AB4F8;
+  --cobalt-mist: #A8C7FA;
+  --cobalt-tint: rgba(26, 115, 232, 0.14);
+  --cobalt-tint-strong: rgba(26, 115, 232, 0.24);
+  --cobalt-border: rgba(138, 180, 248, 0.30);
+  --cobalt-border-strong: rgba(138, 180, 248, 0.50);
+  --cobalt-glow: 0 0 28px -6px rgba(26, 115, 232, 0.56),
+    0 1px 0 0 rgba(168, 199, 250, 0.24) inset;
+  --cobalt-focus-ring: 0 0 0 2px rgba(66, 133, 244, 0.32),
+    0 0 28px -6px rgba(26, 115, 232, 0.44);
+
+  /* Pitch-Black Obsidian Spatial Surfaces (Dark Scheme) */
+  --bg-void: #000000;
+  --bg-card: #080A0E;
+  --bg-card-elevated: #0E1218;
+  --bg-pill: #0A0E15;
+  --bg-pill-hover: #0F1520;
+  --bg-composer: #141820;
+  --bg-subtle: rgba(255, 255, 255, 0.032);
+  --bg-subtle-hover: rgba(255, 255, 255, 0.068);
+  --bg-stage-grid: #05070A;
+  --stage-dot: rgba(138, 180, 248, 0.09);
+
+  --border-card: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-pill: rgba(255, 255, 255, 0.11);
+  --border-composer: rgba(255, 255, 255, 0.10);
+  --border-pill-focus: var(--cobalt-ice);
+
+  --ink-primary: #F1F3F4;
+  --ink-secondary: #9AA0A6;
+  --ink-muted: #6E747B;
+
+  --emerald: #34D399;
+  --emerald-bg: rgba(52, 211, 153, 0.11);
+  --emerald-border: rgba(52, 211, 153, 0.28);
+
+  --vermilion: #FF5A4F;
+  --vermilion-hover: #F2463B;
+  --vermilion-bg: rgba(255, 90, 79, 0.13);
+  --vermilion-border: rgba(255, 90, 79, 0.34);
+
+  --amber: #FBBF24;
+  --amber-bg: rgba(251, 191, 36, 0.11);
+  --amber-border: rgba(251, 191, 36, 0.28);
+
+  --cyan-layer: #38BDF8;
+  --teal-layer: #2DD4BF;
+  --indigo-layer: #818CF8;
+
+  --btn-primary-bg: var(--cobalt-core);
+  --btn-primary-hover: #257CEB;
+  --btn-primary-ink: #FFFFFF;
+  --btn-contrast-bg: #F1F3F4;
+  --btn-contrast-hover: #FFFFFF;
+  --btn-contrast-ink: #080A0E;
+
+  --shadow-card: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+  --shadow-float: 0 18px 44px -14px rgba(0, 0, 0, 0.92);
+  --backdrop-scrim: rgba(0, 0, 0, 0.72);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.16);
+  --scrollbar-track: transparent;
+
+  --svg-node-fill: #0E1218;
+  --svg-node-stroke: rgba(255, 255, 255, 0.13);
+  --svg-edge-stroke: rgba(138, 180, 248, 0.28);
+  --svg-title-fill: #F1F3F4;
+  --svg-sub-fill: #9AA0A6;
+}
+
+/* Reflect explicit <meta name="color-scheme"> override back into CSS color-scheme */
+:root:has(> head > meta[name="color-scheme"][content="dark"]) {
+  color-scheme: dark;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light"]) {
+  color-scheme: light;
+}
+
+/* Archival Paper Light Palette — active when OS prefers light (and not overridden to dark) OR explicitly pinned light */
+@media (prefers-color-scheme: light) {
+  :root:not(:has(> head > meta[name="color-scheme"][content="dark"])) {
+    --cobalt-deep: #0B57D0;
+    --cobalt-core: #1A73E8;
+    --cobalt-bright: #1A73E8;
+    --cobalt-ice: #0B57D0;
+    --cobalt-mist: #4285F4;
+    --cobalt-tint: rgba(26, 115, 232, 0.08);
+    --cobalt-tint-strong: rgba(26, 115, 232, 0.14);
+    --cobalt-border: rgba(26, 115, 232, 0.28);
+    --cobalt-border-strong: rgba(26, 115, 232, 0.50);
+    --cobalt-glow: 0 8px 24px -8px rgba(26, 115, 232, 0.36);
+    --cobalt-focus-ring: 0 0 0 3px rgba(26, 115, 232, 0.18);
+
+    --bg-void: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --bg-card-elevated: #F1F3F4;
+    --bg-pill: #FFFFFF;
+    --bg-pill-hover: #F1F3F4;
+    --bg-composer: #F1F3F4;
+    --bg-subtle: rgba(15, 23, 42, 0.035);
+    --bg-subtle-hover: rgba(15, 23, 42, 0.07);
+    --bg-stage-grid: #F1F3F4;
+    --stage-dot: rgba(15, 23, 42, 0.11);
+
+    --border-card: rgba(15, 23, 42, 0.10);
+    --border-subtle: rgba(15, 23, 42, 0.09);
+    --border-strong: rgba(15, 23, 42, 0.20);
+    --border-pill: rgba(15, 23, 42, 0.12);
+    --border-composer: rgba(15, 23, 42, 0.12);
+
+    --ink-primary: #111827;
+    --ink-secondary: #4B5563;
+    --ink-muted: #6B7280;
+
+    --emerald: #059669;
+    --emerald-bg: rgba(5, 150, 105, 0.10);
+    --emerald-border: rgba(5, 150, 105, 0.26);
+    --vermilion: #DC2626;
+    --vermilion-bg: rgba(220, 38, 38, 0.10);
+    --vermilion-border: rgba(220, 38, 38, 0.28);
+    --amber: #D97706;
+    --amber-bg: rgba(217, 119, 6, 0.10);
+    --amber-border: rgba(217, 119, 6, 0.28);
+
+    --btn-contrast-bg: #111827;
+    --btn-contrast-hover: #1F2937;
+    --btn-contrast-ink: #FFFFFF;
+
+    --shadow-card: 0 20px 50px -28px rgba(15, 23, 42, 0.16);
+    --shadow-float: 0 18px 40px -16px rgba(15, 23, 42, 0.22);
+    --backdrop-scrim: rgba(15, 23, 42, 0.45);
+    --scrollbar-thumb: rgba(15, 23, 42, 0.18);
+
+    --svg-node-fill: #FFFFFF;
+    --svg-node-stroke: rgba(15, 23, 42, 0.14);
+    --svg-edge-stroke: rgba(26, 115, 232, 0.34);
+    --svg-title-fill: #111827;
+    --svg-sub-fill: #4B5563;
+  }
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light"]) {
+  --cobalt-deep: #0B57D0;
+  --cobalt-core: #1A73E8;
+  --cobalt-bright: #1A73E8;
+  --cobalt-ice: #0B57D0;
+  --cobalt-mist: #4285F4;
+  --cobalt-tint: rgba(26, 115, 232, 0.08);
+  --cobalt-tint-strong: rgba(26, 115, 232, 0.14);
+  --cobalt-border: rgba(26, 115, 232, 0.28);
+  --cobalt-border-strong: rgba(26, 115, 232, 0.50);
+  --cobalt-glow: 0 8px 24px -8px rgba(26, 115, 232, 0.36);
+  --cobalt-focus-ring: 0 0 0 3px rgba(26, 115, 232, 0.18);
+
+  --bg-void: #F8F9FA;
+  --bg-card: #FFFFFF;
+  --bg-card-elevated: #F1F3F4;
+  --bg-pill: #FFFFFF;
+  --bg-pill-hover: #F1F3F4;
+  --bg-composer: #F1F3F4;
+  --bg-subtle: rgba(15, 23, 42, 0.035);
+  --bg-subtle-hover: rgba(15, 23, 42, 0.07);
+  --bg-stage-grid: #F1F3F4;
+  --stage-dot: rgba(15, 23, 42, 0.11);
+
+  --border-card: rgba(15, 23, 42, 0.10);
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-strong: rgba(15, 23, 42, 0.20);
+  --border-pill: rgba(15, 23, 42, 0.12);
+  --border-composer: rgba(15, 23, 42, 0.12);
+
+  --ink-primary: #111827;
+  --ink-secondary: #4B5563;
+  --ink-muted: #6B7280;
+
+  --emerald: #059669;
+  --emerald-bg: rgba(5, 150, 105, 0.10);
+  --emerald-border: rgba(5, 150, 105, 0.26);
+  --vermilion: #DC2626;
+  --vermilion-bg: rgba(220, 38, 38, 0.10);
+  --vermilion-border: rgba(220, 38, 38, 0.28);
+  --amber: #D97706;
+  --amber-bg: rgba(217, 119, 6, 0.10);
+  --amber-border: rgba(217, 119, 6, 0.28);
+
+  --btn-contrast-bg: #111827;
+  --btn-contrast-hover: #1F2937;
+  --btn-contrast-ink: #FFFFFF;
+
+  --shadow-card: 0 20px 50px -28px rgba(15, 23, 42, 0.16);
+  --shadow-float: 0 18px 40px -16px rgba(15, 23, 42, 0.22);
+  --backdrop-scrim: rgba(15, 23, 42, 0.45);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.18);
+
+  --svg-node-fill: #FFFFFF;
+  --svg-node-stroke: rgba(15, 23, 42, 0.14);
+  --svg-edge-stroke: rgba(26, 115, 232, 0.34);
+  --svg-title-fill: #111827;
+  --svg-sub-fill: #4B5563;
+}
+
+/* Spatial Studio Canvas Dot-Grid */
+.stage-grid-bg {
+  background-color: var(--bg-stage-grid);
+  background-image: radial-gradient(circle, var(--stage-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Subtle Custom Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* ==========================================================================
+   Modern Web Guidance: Native <dialog> & Top-Layer Animations + Scroll Lock
+   ========================================================================== */
+dialog:modal {
+  overscroll-behavior: contain;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-float);
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+dialog,
+[popover] {
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-behavior: allow-discrete;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+:is(dialog[open], [popover]:is(:popover-open, .\:popover-open)):where(:not([data-closing])) {
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(0) scale(1);
+
+    @starting-style {
+      transform: translateY(8px) scale(0.97);
+    }
+  }
+
+  &::backdrop {
+    background-color: var(--backdrop-scrim);
+    backdrop-filter: blur(6px);
+
+    @starting-style {
+      background-color: transparent;
+      backdrop-filter: blur(0px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog,
+  [popover],
+  dialog::backdrop {
+    transition-duration: 0.08s;
+  }
+}
+
+/* Animated edge flow pulse */
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+.edge-flow-animated {
+  stroke-dasharray: 6 8;
+  animation: flowDash 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-flow-animated {
+    animation: none;
+  }
+}

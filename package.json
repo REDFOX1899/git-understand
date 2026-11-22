@@ -1,0 +1,14 @@
+{
+  "name": "git-understand",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Visual-first multimodal codebase intelligence studio powered by Gemini 4 (git-understand.com)",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix studio install",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:studio": "npm --prefix studio run dev",
+    "build": "npm --prefix backend run build && npm --prefix studio run build",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix studio run typecheck",
+    "test": "npm --prefix backend run test"
+  }
+}
