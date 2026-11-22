@@ -65,7 +65,7 @@ const LAYER_ACCENTS: Record<ArchitectureLayer, { border: string; bg: string; tex
   tooling: { border: '#9AA0A6', bg: 'rgba(154, 160, 166, 0.12)', text: '#E8EAED' },
 };
 
-const CATEGORY_META: Record<ExecutionFlow['category'], { label: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
+const CATEGORY_META: Record<ExecutionFlow['category'], { label: string; color: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }> = {
   request: { label: 'Request Flow', color: '#8AB4F8', icon: Globe },
   ingestion: { label: 'Data Ingestion', color: '#34D399', icon: Database },
   ai_pipeline: { label: 'AI Pipeline', color: '#38BDF8', icon: Sparkles },

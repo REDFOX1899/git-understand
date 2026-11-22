@@ -221,11 +221,16 @@ analyzeRoutes.get(
  * Encoded or single-token showcase route (e.g. /api/showcase/coderamp-labs%2Fgitingest or /api/showcase/gitingest).
  * Seeds atlasCache and returns the full VisualAtlasBlueprint.
  */
+function paramStr(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] || '';
+  return value || '';
+}
+
 analyzeRoutes.get(
   '/showcase/:slug',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await resolveAndSeedShowcase(req.params.slug, res);
+      await resolveAndSeedShowcase(paramStr(req.params.slug), res);
     } catch (err) {
       next(err);
     }
@@ -303,7 +308,7 @@ analyzeRoutes.get(
   '/repos/:repoId',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await handleGetRepoBlueprint(req.params.repoId, res);
+      await handleGetRepoBlueprint(paramStr(req.params.repoId), res);
     } catch (err) {
       next(err);
     }
@@ -318,7 +323,7 @@ analyzeRoutes.get(
   '/repo/:repoId',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await handleGetRepoBlueprint(req.params.repoId, res);
+      await handleGetRepoBlueprint(paramStr(req.params.repoId), res);
     } catch (err) {
       next(err);
     }
@@ -330,7 +335,7 @@ analyzeRoutes.get(
  * Subscribes to real-time pipeline progress events over Server-Sent Events (SSE).
  */
 analyzeRoutes.get('/events/:repoId', (req: Request, res: Response) => {
-  handleSseConnection(req.params.repoId, req, res);
+  handleSseConnection(paramStr(req.params.repoId), req, res);
 });
 
 /**
@@ -338,7 +343,7 @@ analyzeRoutes.get('/events/:repoId', (req: Request, res: Response) => {
  * Alias matching studio/src/lib/api.ts subscribeRepoEvents route structure.
  */
 analyzeRoutes.get('/repo/:repoId/events', (req: Request, res: Response) => {
-  handleSseConnection(req.params.repoId, req, res);
+  handleSseConnection(paramStr(req.params.repoId), req, res);
 });
 
 /**
@@ -346,7 +351,7 @@ analyzeRoutes.get('/repo/:repoId/events', (req: Request, res: Response) => {
  * Plural alias for SSE subscription.
  */
 analyzeRoutes.get('/repos/:repoId/events', (req: Request, res: Response) => {
-  handleSseConnection(req.params.repoId, req, res);
+  handleSseConnection(paramStr(req.params.repoId), req, res);
 });
 
 export default analyzeRoutes;

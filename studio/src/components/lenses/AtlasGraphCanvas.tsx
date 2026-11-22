@@ -155,7 +155,7 @@ export const AtlasGraphCanvas = forwardRef<AtlasGraphHandle, AtlasGraphCanvasPro
     }, [visualSearchMatches]);
 
     const xrayModuleMap = useMemo(() => {
-      const map = new Map<string, (typeof blueprint.xray.modules)[number]>();
+      const map = new Map<string, NonNullable<VisualAtlasBlueprint['xray']>['modules'][number]>();
       if (blueprint.xray?.modules) {
         for (const mod of blueprint.xray.modules) {
           map.set(mod.nodeId, mod);

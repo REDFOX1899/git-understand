@@ -442,7 +442,8 @@ router.post(['/smart-filter', '/digest/smart-filter'], async (req: Request, res:
 
 router.get(['/raw/:owner/:repo', '/digest/raw/:owner/:repo'], async (req: Request, res: Response) => {
   try {
-    const { owner, repo } = req.params;
+    const owner = Array.isArray(req.params.owner) ? req.params.owner[0] : req.params.owner;
+    const repo = Array.isArray(req.params.repo) ? req.params.repo[0] : req.params.repo;
 
     if (!owner || !repo) {
       res.status(400).setHeader('Content-Type', 'text/markdown; charset=utf-8').send(

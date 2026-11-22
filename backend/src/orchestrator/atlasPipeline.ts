@@ -93,41 +93,52 @@ async function loadExternalGeminiServices(): Promise<GeminiServices> {
 
   if (!services.synthesizeVisualAtlas) {
     try {
-      // @ts-ignore - Sibling module may be created concurrently in the agent fleet
-      const mod = await import('../gemini/synthesizer.js').catch(() => null);
-      if (typeof mod?.synthesizeVisualAtlas === 'function') services.synthesizeVisualAtlas = mod.synthesizeVisualAtlas;
+      const mod = await import('../gemini/atlasArchitect.js').catch(() => null);
+      if (typeof mod?.synthesizeVisualAtlas === 'function') {
+        services.synthesizeVisualAtlas = (bp, opts) =>
+          mod.synthesizeVisualAtlas(bp, { byokApiKey: opts?.apiKey, modelOverride: opts?.model });
+      }
     } catch {}
   }
 
   if (!services.generateMermaidSuite) {
     try {
-      // @ts-ignore - Sibling module may be created concurrently in the agent fleet
-      const mod = await import('../gemini/mermaidSuite.js').catch(() => null);
-      if (typeof mod?.generateMermaidSuite === 'function') services.generateMermaidSuite = mod.generateMermaidSuite;
+      const mod = await import('../gemini/diagramSynthesizer.js').catch(() => null);
+      if (typeof mod?.generateMermaidSuite === 'function') {
+        services.generateMermaidSuite = (bp, opts) =>
+          mod.generateMermaidSuite(bp, { byokApiKey: opts?.apiKey });
+      }
     } catch {}
   }
 
   if (!services.choreographFlowsAndTour) {
     try {
-      // @ts-ignore - Sibling module may be created concurrently in the agent fleet
       const mod = await import('../gemini/flowChoreographer.js').catch(() => null);
-      if (typeof mod?.choreographFlowsAndTour === 'function') services.choreographFlowsAndTour = mod.choreographFlowsAndTour;
+      if (typeof mod?.choreographFlowsAndTour === 'function') {
+        services.choreographFlowsAndTour = (bp, opts) =>
+          mod.choreographFlowsAndTour(bp, opts?.apiKey);
+      }
     } catch {}
   }
 
   if (!services.runCodebaseXRay) {
     try {
-      // @ts-ignore - Sibling module may be created concurrently in the agent fleet
-      const mod = await import('../gemini/codebaseXRay.js').catch(() => null);
-      if (typeof mod?.runCodebaseXRay === 'function') services.runCodebaseXRay = mod.runCodebaseXRay;
+      const mod = await import('../gemini/xrayDecisions.js').catch(() => null);
+      if (typeof mod?.runCodebaseXRay === 'function') {
+        services.runCodebaseXRay = (bp, opts) =>
+          mod.runCodebaseXRay(bp, { byokApiKey: opts?.apiKey });
+      }
     } catch {}
   }
 
   if (!services.indexRepoEmbeddings) {
     try {
-      // @ts-ignore - Sibling module may be created concurrently in the agent fleet
-      const mod = await import('../gemini/repoEmbeddings.js').catch(() => null);
-      if (typeof mod?.indexRepoEmbeddings === 'function') services.indexRepoEmbeddings = mod.indexRepoEmbeddings;
+      const mod = await import('../gemini/visualSearch.js').catch(() => null);
+      if (typeof mod?.indexRepoEmbeddings === 'function') {
+        services.indexRepoEmbeddings = async (bp, opts) => {
+          await mod.indexRepoEmbeddings(bp, opts?.apiKey);
+        };
+      }
     } catch {}
   }
 
